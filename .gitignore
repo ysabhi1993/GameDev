@@ -31,5 +31,13 @@
 *.out
 *.app
 
-#idea files
-.idea
+#ignoring vs files
+*.vs
+
+#ignoring unreal generated packages
+*/Binaries
+*/Build
+*/DerivedDataCache
+EscapeBuilding/Content/StarterContent
+*/Intermediate
+*/Saved
