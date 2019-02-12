@@ -2,6 +2,9 @@
 
 #include "DynamicDoor.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
+
 
 // Sets default values for this component's properties
 UDynamicDoor::UDynamicDoor()
@@ -19,18 +22,34 @@ void UDynamicDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ActorOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 	AActor *doorOwner = GetOwner();
-	FRotator rotateBy = FRotator(0.0f, -60.0f, 0.0f);
-	doorOwner->SetActorRotation(rotateBy);
-
 }
 
+bool UDynamicDoor::OpenDoor()
+{
+	
+	FRotator rotateBy = FRotator(0.0f, 150.0f, 0.0f);
+	doorOwner->SetActorRotation(rotateBy);
+	return true;
+}
+
+void UDynamicDoor::CloseDoor() {
+	
+	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
+}
 
 // Called every frame
 void UDynamicDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-}
+	if (PressurePlate->IsOverlappingActor(ActorOpens)) {
+		OpenDoor();
+		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+	}
 
+	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) {
+		CloseDoor();
+	}
+}
