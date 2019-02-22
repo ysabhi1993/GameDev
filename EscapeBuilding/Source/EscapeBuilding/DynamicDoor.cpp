@@ -23,20 +23,17 @@ void UDynamicDoor::BeginPlay()
 	Super::BeginPlay();
 
 	ActorOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
-	AActor *doorOwner = GetOwner();
+	doorOwner = GetOwner();
 }
 
-bool UDynamicDoor::OpenDoor()
+void UDynamicDoor::OpenDoor()
 {
-	
-	FRotator rotateBy = FRotator(0.0f, 150.0f, 0.0f);
-	doorOwner->SetActorRotation(rotateBy);
-	return true;
+	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
 }
 
 void UDynamicDoor::CloseDoor() {
 	
-	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
+	doorOwner->SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
 }
 
 // Called every frame
@@ -48,7 +45,7 @@ void UDynamicDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
-
+	
 	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) {
 		CloseDoor();
 	}
