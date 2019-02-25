@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 
+#define OUT
 
 // Sets default values for this component's properties
 UDynamicDoor::UDynamicDoor()
@@ -16,24 +17,11 @@ UDynamicDoor::UDynamicDoor()
 	// ...
 }
 
-
 // Called when the game starts
 void UDynamicDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ActorOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 	doorOwner = GetOwner();
-}
-
-void UDynamicDoor::OpenDoor()
-{
-	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
-}
-
-void UDynamicDoor::CloseDoor() {
-	
-	doorOwner->SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
 }
 
 // Called every frame
@@ -41,7 +29,7 @@ void UDynamicDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (PressurePlate->IsOverlappingActor(ActorOpens)) {
+	if (GetActorsWeightOnPressurePlate() > WeightNeededToOpen) {
 		OpenDoor();
 		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 	}
@@ -49,4 +37,26 @@ void UDynamicDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay) {
 		CloseDoor();
 	}
+}
+
+void UDynamicDoor::OpenDoor()
+{
+	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
+}
+
+void UDynamicDoor::CloseDoor()
+{
+	doorOwner->SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
+}
+
+float UDynamicDoor::GetActorsWeightOnPressurePlate()
+{
+	float TotalMass = 0.f;
+	TArray<AActor *> OverlappingActors;
+	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
+
+	for (const auto * Actor: OverlappingActors) {
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+	return TotalMass;
 }

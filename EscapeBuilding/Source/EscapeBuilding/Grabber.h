@@ -16,12 +16,10 @@ private:
 	float Reach = 100.0f;
 	UPhysicsHandleComponent *Handler = nullptr;
 	UInputComponent *InputComponent = nullptr;
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
 
 	void Grab();
 	void Release();
-	FVector GetLineTraceEnd();
+	FTwoVectors GetLineTracePoints();
 	FHitResult GetHitResult();
 	
 public:	

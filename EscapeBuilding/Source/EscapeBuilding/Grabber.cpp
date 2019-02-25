@@ -18,12 +18,34 @@ UGrabber::UGrabber()
 	// ...
 }
 
+// Called when the game starts
+void UGrabber::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Handler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+
+	if (InputComponent) {
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+}
+
+// Called every frame
+void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (Handler->GetGrabbedComponent()) {
+		Handler->SetTargetLocation(GetLineTracePoints().v2);
+	}
+}
+
 /*
  * This method tells when to Grab an actor
  */
 void UGrabber::Grab() {
-	UE_LOG(LogTemp, Warning, TEXT("Grab called"));
-
 	auto HitResult = GetHitResult();
 	auto ComponentToGrab = HitResult.GetComponent();
 	auto ActorHit = HitResult.GetActor();
@@ -32,17 +54,26 @@ void UGrabber::Grab() {
 	}
 }
 
-void UGrabber::Release() {
-	UE_LOG(LogTemp, Warning, TEXT("Release called"))
+/*
+ * Release the Grabbed component
+ */
+void UGrabber::Release() 
+{
+	Handler->ReleaseComponent();
 }
 
-FVector UGrabber::GetLineTraceEnd()
+/*
+ * returns a two vector object with Line trace start and end points
+ */
+FTwoVectors UGrabber::GetLineTracePoints()
 {
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
 
 	//Generates a line pointing at the view point
 	FVector LineEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-	return LineEnd;
+	return FTwoVectors(PlayerViewPointLocation, LineEnd);
 }
 
 /*
@@ -56,46 +87,14 @@ FHitResult UGrabber::GetHitResult()
 	FColor RedColor = FColor(255, 0, 0);
 	FColor BlackColor = FColor(0, 0, 0);
 
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-	
-	FVector LineEnd = GetLineTraceEnd();
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
 	FHitResult Hit;
 
-	DrawDebugPoint(GetWorld(), LineEnd, 3.0f, WhiteColor, false, 0.0f, 0.0f);
-	GetWorld()->LineTraceSingleByObjectType(OUT Hit, PlayerViewPointLocation, LineEnd,
+	DrawDebugPoint(GetWorld(), GetLineTracePoints().v2, 3.0f, WhiteColor, false, 0.0f, 0.0f);
+	GetWorld()->LineTraceSingleByObjectType(OUT Hit, GetLineTracePoints().v1, GetLineTracePoints().v2,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters);
-	
+
 	return Hit;
 }
 
-
-
-// Called when the game starts
-void UGrabber::BeginPlay()
-{
-	Super::BeginPlay();
-
-	Handler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-
-	if (InputComponent) {
-		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
-		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
-	}
-	
-}
-
-
-// Called every frame
-void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (Handler->GetGrabbedComponent()) {
-		Handler->SetTargetLocation(GetLineTraceEnd());
-	}
-	
-}
