@@ -41,21 +41,33 @@ void UDynamicDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 
 void UDynamicDoor::OpenDoor()
 {
+	if (!doorOwner) { 
+		UE_LOG(LogTemp, Error, TEXT("Could not find Door Owner"))
+		return; 
+	}
 	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
 }
 
 void UDynamicDoor::CloseDoor()
 {
+	if (!doorOwner) { 
+		UE_LOG(LogTemp, Error, TEXT("Could not find Door Owner"))
+		return; 
+	}
 	doorOwner->SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
 }
 
 float UDynamicDoor::GetActorsWeightOnPressurePlate()
 {
+	if (!PressurePlate) { 
+		UE_LOG(LogTemp, Error, TEXT("Could not find Pressure Plate"))
+		return 200.0f; 
+	}
 	float TotalMass = 0.f;
 	TArray<AActor *> OverlappingActors;
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 
-	for (const auto * Actor: OverlappingActors) {
+	for (const auto * Actor : OverlappingActors) {
 		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
 	}
 	return TotalMass;

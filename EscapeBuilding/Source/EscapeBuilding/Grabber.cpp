@@ -37,6 +37,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!Handler) { 
+		UE_LOG(LogTemp, Error, TEXT("Could not find Physics Handler"))
+		return; 
+	}
+
 	if (Handler->GetGrabbedComponent()) {
 		Handler->SetTargetLocation(GetLineTracePoints().v2);
 	}
@@ -59,6 +64,10 @@ void UGrabber::Grab() {
  */
 void UGrabber::Release() 
 {
+	if (!Handler) { 
+		UE_LOG(LogTemp, Error, TEXT("Could not find Physics Handler"))
+		return; 
+	}
 	Handler->ReleaseComponent();
 }
 
