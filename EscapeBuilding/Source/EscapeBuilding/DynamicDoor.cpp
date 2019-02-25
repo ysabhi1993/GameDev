@@ -41,11 +41,13 @@ void UDynamicDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 
 void UDynamicDoor::OpenDoor()
 {
-	if (!doorOwner) { 
+	/*if (!doorOwner) { 
 		UE_LOG(LogTemp, Error, TEXT("Could not find Door Owner"))
 		return; 
 	}
-	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));
+	doorOwner->SetActorRotation(FRotator(0.0f, 150.0f, 0.0f));*/
+
+	OnOpenRequest.Broadcast();
 }
 
 void UDynamicDoor::CloseDoor()

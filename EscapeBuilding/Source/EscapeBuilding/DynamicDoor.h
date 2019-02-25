@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "DynamicDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPEBUILDING_API UDynamicDoor : public UActorComponent
@@ -41,6 +42,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float WeightNeededToOpen = 50.0f;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnOpenRequest OnOpenRequest;
 
 	float LastDoorOpenTime;
 
